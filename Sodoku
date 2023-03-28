@@ -1,0 +1,134 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Exam30March2023
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            int run = 0;
+            int least = 99999;
+            int most = 0;
+            int totalattempts = 0;
+            int totalcorrections = 0;
+            while(run > -1)
+            {
+                //INITIALIZATION
+                int[,] board = new int[9, 9];
+                List<int> exclude = new List<int>() { };
+                int filled = 0;
+                Random rnd = new Random();
+                int attempts = 0;
+                int corrections = 0;
+                //PROGRAM
+                while (filled < 81)
+                {
+                    for (int bx = 0; bx < 9; bx++) 
+                    {
+                        for (int by = 0; by < 9; by++) 
+                        {
+                            if (board[bx, by] > 0)
+                            {
+                                continue;
+                            }
+                            exclude = new List<int>() { };
+                            for (int rc = 0; rc < 9; rc++)
+                            {
+                                exclude.Add(board[bx, rc]);
+                                exclude.Add(board[rc, by]);
+                            }
+                            int xcellcheck = (bx / 3) * 3;
+                            int ycellcheck = (by / 3) * 3;
+                            for (int cx = 0; cx < 3; cx++)
+                            {
+                                for (int cy = 0; cy < 3; cy++)
+                                {
+                                    exclude.Add(board[xcellcheck, ycellcheck]);
+                                    ycellcheck = ycellcheck + 1;
+                                }
+                                ycellcheck = ycellcheck - 3;
+                                xcellcheck = xcellcheck + 1;
+                            }
+                            for (int lim = 0; lim < 50; lim++)
+                            {
+                                board[bx, by] = rnd.Next(1, 10);
+                                int chexclude = 0;
+                                for (int cn = 0; cn < exclude.Count; cn++)
+                                {
+                                    if (board[bx, by] == exclude[cn])
+                                    {
+                                        chexclude = chexclude + 1;
+                                    }
+                                }
+                                if (chexclude == 0)
+                                {
+                                    break;
+                                }
+                                if (lim == 49)
+                                {
+                                    exclude = new List<int>() { };
+                                    for (int rc = 0; rc < 9; rc++)
+                                    {
+                                        board[bx, rc] = 0;
+                                        board[rc, by] = 0;
+                                    }
+                                    xcellcheck = (bx / 3) * 3;
+                                    ycellcheck = (by / 3) * 3;
+                                    for (int cx = 0; cx < 3; cx++)
+                                    {
+                                        for (int cy = 0; cy < 3; cy++)
+                                        {
+                                            board[xcellcheck, ycellcheck] = 0;
+                                            ycellcheck = ycellcheck + 1;
+                                        }
+                                        ycellcheck = ycellcheck - 3;
+                                        xcellcheck = xcellcheck + 1;
+                                    }
+                                    corrections = corrections + 1;
+                                }
+                            }
+                        }
+                    }
+                    filled = 0;
+                    for (int tx = 0; tx < 9; tx++)
+                    {
+                        for (int ty = 0; ty < 9; ty++)
+                        {
+                            if (board[tx, ty] > 0)
+                            {
+                                filled = filled + 1;
+                            }
+                        }
+                    }
+                    attempts = attempts + 1;
+                }
+                //DISPLAY
+                for (int rows = 0; rows < 9; rows++)
+                {
+                    for (int cols = 0; cols < 9; cols++)
+                    {
+                        Console.Write(board[rows, cols] + "\t");
+                    }
+                    Console.WriteLine(); 
+                }
+                Console.WriteLine("In just " + attempts + " attempts!");
+                run = run + 1;
+                totalattempts = totalattempts + attempts;
+                int averageattempts = totalattempts / run;
+                totalcorrections = totalcorrections + corrections;
+                int averagecorrections = totalcorrections / run;
+                if (attempts < least)
+                    least = attempts;
+                if (attempts > most)
+                    most = attempts;
+                Console.WriteLine("Corrections needed: " + corrections + "." + " Average number of corrections " + averagecorrections + "." + " Average number of attempts: " + averageattempts + "." + " Most attempts needed: " + most + "." + " Least attempts needed: " + least + "." + " Boards generated: " + run + ".");
+                Console.ReadKey();
+            }
+        }
+    }
+}
